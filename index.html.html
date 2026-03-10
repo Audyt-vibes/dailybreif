@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE BRIEF — Your Intelligent Daily Read</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0d0d0d; --paper:#f5f0e8; --cream:#ede8db;
+  --accent:#c8392b; --gold:#b8952a; --steel:#2c3e50;
+  --muted:#7a7060; --rule:#ccc4b0; --card-bg:#faf7f2;
+  --hover:#fff8f0; --green:#2d7a4f; --purple:#6b3fa0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+
+.masthead{background:var(--ink);color:var(--paper);border-bottom:3px solid var(--accent);}
+.masthead-top{display:flex;align-items:center;justify-content:space-between;padding:10px 40px;border-bottom:1px solid #333;font-family:'DM Mono',monospace;font-size:11px;color:#888;letter-spacing:.05em;flex-wrap:wrap;gap:6px;}
+.masthead-title{text-align:center;padding:18px 40px 14px;}
+.masthead-title h1{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,6vw,5rem);font-weight:900;letter-spacing:.08em;line-height:1;color:var(--paper);text-transform:uppercase;}
+.masthead-subtitle{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.25em;color:#888;margin-top:6px;text-transform:uppercase;}
+.masthead-tagline{font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:#aaa;margin-top:4px;}
+
+.nav-bar{background:var(--cream);border-bottom:2px solid var(--rule);display:flex;overflow-x:auto;scrollbar-width:none;}
+.nav-bar::-webkit-scrollbar{display:none;}
+.nav-tab{padding:13px 18px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s;user-select:none;border-right:1px solid var(--rule);}
+.nav-tab:hover{color:var(--ink);background:var(--hover);}
+.nav-tab.active{color:var(--ink);border-bottom-color:var(--accent);background:var(--paper);font-weight:500;}
+
+.main{max-width:1400px;margin:0 auto;padding:30px 30px 80px;}
+.section-view{display:none;}
+.section-view.active{display:block;}
+
+.section-header{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--ink);flex-wrap:wrap;}
+.section-badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:3px 8px;border-radius:2px;white-space:nowrap;}
+.section-badge.accent{background:var(--accent);}
+.section-badge.gold{background:var(--gold);}
+.section-badge.steel{background:var(--steel);}
+.section-badge.green{background:var(--green);}
+.section-badge.purple{background:var(--purple);}
+.section-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;flex:1;min-width:120px;}
+.section-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.status-bar{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#4caf50;animation:pulse 2s infinite;}
+
+.articles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;margin-bottom:20px;}
+
+.article-card{background:var(--card-bg);border:1px solid var(--rule);border-radius:2px;padding:20px;transition:box-shadow .25s,transform .25s;display:flex;flex-direction:column;gap:10px;}
+.article-card:hover{box-shadow:4px 4px 0 var(--ink);transform:translate(-2px,-2px);}
+.card-top-row{display:flex;justify-content:space-between;align-items:center;}
+.card-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.card-source{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);font-weight:500;letter-spacing:.08em;text-transform:uppercase;}
+.card-headline{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;line-height:1.3;}
+.card-summary{font-size:13px;line-height:1.6;color:#444;font-weight:300;flex:1;}
+
+/* EXEC SUMMARY */
+.exec-section{border-top:1px dashed var(--rule);padding-top:10px;}
+.exec-toggle{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);cursor:pointer;display:flex;align-items:center;gap:6px;background:none;border:none;padding:0;transition:color .2s;}
+.exec-toggle:hover{color:var(--accent);}
+.exec-toggle .dot-ready{font-size:9px;color:var(--green);margin-left:4px;}
+.exec-body{display:none;margin-top:10px;background:white;border:1px solid var(--rule);border-radius:2px;padding:14px 16px;font-size:12.5px;line-height:1.7;color:#333;}
+.exec-body.open{display:block;animation:fadeIn .2s ease;}
+.exec-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:4px;}
+.exec-bullet{display:flex;gap:8px;margin-bottom:5px;}
+.exec-bullet::before{content:"▪";color:var(--accent);flex-shrink:0;}
+.exec-loading{font-style:italic;color:var(--muted);font-size:12px;}
+
+/* PLAY BAR */
+.play-bar{background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:2px;display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.play-bar-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;color:#aaa;flex:1;}
+.play-btn{padding:7px 18px;background:var(--green);color:white;border:none;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:background .2s;white-space:nowrap;}
+.play-btn:hover{background:#24633f;}
+.play-btn.stop{background:var(--accent);}
+.play-btn.stop:hover{background:#a02d20;}
+.play-track{font-family:'DM Mono',monospace;font-size:10px;color:#888;}
+
+.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--rule);gap:8px;flex-wrap:wrap;}
+.card-link{font-family:'DM Mono',monospace;font-size:10px;color:var(--steel);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+.card-link:hover{color:var(--accent);}
+.card-actions{display:flex;gap:5px;flex-shrink:0;}
+.btn-icon{width:28px;height:28px;border:1px solid var(--rule);background:white;border-radius:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .2s;color:var(--muted);}
+.btn-icon:hover{border-color:var(--ink);color:var(--ink);}
+.btn-icon.skip:hover{border-color:var(--accent);color:var(--accent);}
+.btn-icon.save:hover{border-color:var(--gold);color:var(--gold);}
+.btn-icon.speaking{border-color:var(--green);color:var(--green);background:#f0fff6;animation:speakPulse 1.2s infinite;}
+@keyframes speakPulse{0%,100%{box-shadow:0 0 0 0 rgba(45,122,79,.4);}50%{box-shadow:0 0 0 4px rgba(45,122,79,.1);}}
+
+.feedback-bar{background:var(--cream);border:1px solid var(--rule);border-radius:2px;padding:11px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.feedback-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.feedback-btn{padding:5px 14px;border:1px solid var(--rule);background:white;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border-radius:2px;transition:all .2s;color:var(--ink);white-space:nowrap;}
+.feedback-btn:hover{border-color:var(--ink);background:var(--hover);}
+
+.refresh-btn{padding:7px 14px;background:var(--ink);color:var(--paper);border:none;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:background .2s;white-space:nowrap;}
+.refresh-btn:hover{background:var(--accent);}
+.refresh-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.skeleton{background:linear-gradient(90deg,#ede8db 25%,#e0dbd0 50%,#ede8db 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:3px;}
+.sk-short{height:12px;width:40%;margin:5px 0;}
+.sk-med{height:12px;width:70%;margin:5px 0;}
+.sk-full{height:12px;width:100%;margin:5px 0;}
+.sk-h{height:18px;margin:8px 0;}
+.empty-state{text-align:center;padding:40px;font-family:'Playfair Display',serif;font-style:italic;color:var(--muted);grid-column:1/-1;}
+
+.saved-badge{font-family:'DM Mono',monospace;font-size:10px;background:var(--gold);color:white;padding:2px 7px;border-radius:20px;margin-left:5px;}
+
+/* ========= TOPICS EDITOR ========= */
+.topics-page{display:flex;flex-direction:column;gap:26px;}
+.topics-intro{background:var(--ink);color:var(--paper);padding:24px 28px;border-radius:2px;}
+.topics-intro h2{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:6px;}
+.topics-intro p{font-size:13px;color:#bbb;line-height:1.6;}
+.topic-editor-card{background:var(--card-bg);border:1px solid var(--rule);border-radius:2px;padding:22px 24px;display:flex;flex-direction:column;gap:14px;}
+.topic-editor-card:hover{box-shadow:3px 3px 0 var(--rule);}
+.te-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.te-icon{width:42px;height:42px;font-size:20px;text-align:center;border:1px solid var(--rule);background:white;border-radius:2px;font-family:inherit;}
+.te-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;border:none;border-bottom:2px solid var(--rule);background:transparent;flex:1;min-width:140px;padding:4px 0;color:var(--ink);outline:none;transition:border-color .2s;}
+.te-name:focus{border-bottom-color:var(--ink);}
+.te-color{font-family:'DM Mono',monospace;font-size:10px;border:1px solid var(--rule);background:white;padding:5px 10px;border-radius:2px;cursor:pointer;color:var(--ink);}
+.te-active{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;padding:3px 10px;border-radius:20px;background:#e8f5e9;color:var(--green);}
+.te-prompt-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.te-prompt{width:100%;min-height:100px;border:1px solid var(--rule);background:white;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.6;color:var(--ink);resize:vertical;border-radius:2px;outline:none;transition:border-color .2s;}
+.te-prompt:focus{border-color:var(--ink);}
+.te-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn-p{padding:8px 18px;background:var(--ink);color:var(--paper);border:none;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:background .2s;}
+.btn-p:hover{background:var(--steel);}
+.btn-s{padding:8px 18px;background:white;color:var(--ink);border:1px solid var(--rule);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;}
+.btn-s:hover{border-color:var(--ink);}
+.btn-d{padding:8px 18px;background:white;color:var(--accent);border:1px solid var(--accent);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;}
+.btn-d:hover{background:var(--accent);color:white;}
+.te-id{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto;}
+.add-topic{padding:16px;background:white;border:2px dashed var(--rule);color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;text-align:center;width:100%;}
+.add-topic:hover{border-color:var(--ink);color:var(--ink);}
+.global-actions{display:flex;gap:10px;flex-wrap:wrap;padding-top:16px;border-top:2px solid var(--ink);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--paper);max-width:480px;width:100%;padding:28px;border-radius:2px;box-shadow:8px 8px 0 var(--ink);transform:translateY(16px);transition:transform .25s;}
+.modal-overlay.open .modal-box{transform:translateY(0);}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;margin-bottom:12px;}
+.modal-body{font-size:13px;line-height:1.7;color:#444;margin-bottom:20px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--ink);color:var(--paper);padding:11px 18px;font-family:'DM Mono',monospace;font-size:11px;border-radius:2px;opacity:0;transform:translateY(8px);transition:all .3s;z-index:9999;pointer-events:none;max-width:320px;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+.fade-in{animation:fadeIn .35s ease forwards;}
+.card-in{animation:cardIn .3s ease forwards;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+@media(max-width:700px){
+  .main{padding:14px 12px 60px}
+  .masthead-top{padding:8px 16px}
+  .masthead-title{padding:12px 16px 10px}
+  .articles-grid{grid-template-columns:1fr}
+  .nav-tab{padding:10px 11px;font-size:9px}
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-top">
+    <span id="live-date">—</span>
+    <span>SG · GLOBAL · TECH · HEALTH · REGULATORY · TRENDING</span>
+    <span id="live-time">—</span>
+  </div>
+  <div class="masthead-title">
+    <h1>The Brief</h1>
+    <div class="masthead-subtitle">Curated Intelligence · Powered by AI</div>
+    <div class="masthead-tagline">Your world, distilled — for the discerning Singapore professional</div>
+  </div>
+</div>
+
+<div class="nav-bar" id="nav-bar">
+  <div class="nav-tab active" onclick="switchTab('all')">📰 All Briefs</div>
+  <div class="nav-tab" onclick="switchTab('saved')">🔖 Saved <span class="saved-badge" id="saved-count">0</span></div>
+  <div class="nav-tab" onclick="switchTab('topics')">⚙️ Watch Topics</div>
+</div>
+
+<div class="main">
+  <div id="all-view" class="section-view active"></div>
+  <div id="saved-view" class="section-view"></div>
+  <div id="topics-view" class="section-view"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-s" onclick="closeModal()">Cancel</button>
+      <button class="btn-d" id="modal-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = "https://api.anthropic.com/v1/messages";
+const MDL = "claude-sonnet-4-20250514";
+
+// ── DEFAULT SECTIONS ──────────────────────────────────────────────────
+let SECTIONS = [
+  {id:"global",label:"1A · Global News",badge:"Global",badgeClass:"accent",icon:"🌍",
+   prompt:`You are a senior news editor. List 5 of today's most important global news stories any educated professional must know. Cover geopolitics, economics, climate, major world events. For each: punchy headline, 2-sentence summary of key facts and significance, credible source (Reuters/BBC/FT/NYT/Bloomberg/AP/Guardian), real working URL. Return ONLY valid JSON: {"articles":[{"headline":"...","summary":"...","source":"...","url":"..."}]}`},
+  {id:"sg",label:"1B · Singapore & APAC",badge:"SG/APAC",badgeClass:"",icon:"🇸🇬",
+   prompt:`You are a Singapore-based senior journalist. List 5 top news stories for an educated Singapore professional — government policy, MAS/financial regulation, ASEAN, regional trade, Singapore tech & business, APAC geopolitics. For each: headline, 2-sentence summary with local relevance, source (Straits Times/CNA/Business Times/Bloomberg Asia/SCMP/Reuters), real working URL. Return ONLY valid JSON: {"articles":[{"headline":"...","summary":"...","source":"...","url":"..."}]}`},
+  {id:"tech",label:"2A · Tech World",badge:"Tech",badgeClass:"steel",icon:"⚡",
+   prompt:`You are a technology journalist. List 5 must-know tech stories for a tech-savvy professional — AI, semiconductors, big tech, startups, cybersecurity, space, EVs. For each: headline, 2-sentence summary of what happened and why it matters, source (Wired/TechCrunch/The Verge/Ars Technica/MIT Tech Review), real working URL. Return ONLY valid JSON: {"articles":[{"headline":"...","summary":"...","source":"...","url":"..."}]}`},
+  {id:"health",label:"2B · Health & AI",badge:"Health·AI",badgeClass:"gold",icon:"🧬",
+   prompt:`You are a medical AI journalist specializing in oncology and digital health. List 5 recent developments in: AI cancer detection/treatment, remote patient monitoring, digital health startups, precision medicine, clinical AI — relevant to building an AI-driven cancer care and remote monitoring startup. For each: precise headline, 2-sentence summary of clinical/commercial significance, source (NEJM/Nature Medicine/STAT News/MedCity News/Fierce Healthcare), real working URL. Return ONLY valid JSON: {"articles":[{"headline":"...","summary":"...","source":"...","url":"..."}]}`},
+  {id:"regulatory",label:"2C · Regulatory & Policy",badge:"Regulatory",badgeClass:"",icon:"📋",
+   prompt:`You are a regulatory affairs and tech policy analyst. List 5 recent developments in: AI regulation (EU AI Act/FDA/HSA Singapore), digital health approvals, medical device regulation, data privacy (PDPA/GDPR/HIPAA), healthtech compliance, SE Asia startup policy — critical for an AI healthtech founder in Singapore. For each: concise headline, 2-sentence summary of change and practical impact, source (Politico/FT/Reuters/MoH Singapore/FDA.gov/STAT), real working URL. Return ONLY valid JSON: {"articles":[{"headline":"...","summary":"...","source":"...","url":"..."}]}`},
+  {id:"trending",label:"Trending & Must-Know",badge:"Trending",badgeClass:"accent",icon:"🔥",
+   prompt:`You are a cultural editor for a globally curious Singapore professional. List 5 fascinating trending stories — science breakthroughs, quirky economics, viral cultural moments, surprising statistics, unusual business, history intersecting with today. For each: intriguing headline, 2-sentence summary with compelling hook and surprising fact, credible source, real working URL. Return ONLY valid JSON: {"articles":[{"headline":"...","summary":"...","source":"...","url":"..."}]}`}
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────
+let sectionData={}, loadingState={}, savedArticles=[];
+let execCache={}; // key: sid-idx → html | 'loading' | null
+let tts={speaking:false,sid:null,idx:0,queue:[],utt:null};
+
+// ── INIT ──────────────────────────────────────────────────────────────
+function init(){
+  updateClock(); setInterval(updateClock,1000);
+  SECTIONS.forEach(s=>{sectionData[s.id]={articles:[],dismissed:new Set()};loadingState[s.id]=false;});
+  rebuildNav(); rebuildSectionDivs();
+  renderAll(); renderTopics();
+  loadAllSections();
+}
+
+function updateClock(){
+  const n=new Date();
+  const d=document.getElementById('live-date');
+  const t=document.getElementById('live-time');
+  if(d)d.textContent=n.toLocaleDateString('en-SG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  if(t)t.textContent=n.toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
+}
+
+// ── NAV & VIEWS ───────────────────────────────────────────────────────
+function rebuildNav(){
+  const nav=document.getElementById('nav-bar');
+  nav.querySelectorAll('.sec-tab').forEach(el=>el.remove());
+  const savedTab=nav.querySelector('[onclick*="saved"]');
+  SECTIONS.forEach(s=>{
+    const t=document.createElement('div');
+    t.className='nav-tab sec-tab'; t.id='tab-'+s.id;
+    t.setAttribute('onclick',`switchTab('${s.id}')`);
+    t.textContent=`${s.icon} ${s.badge}`;
+    nav.insertBefore(t,savedTab);
+  });
+}
+
+function rebuildSectionDivs(){
+  const main=document.querySelector('.main');
+  main.querySelectorAll('.dyn-view').forEach(el=>el.remove());
+  const savedV=document.getElementById('saved-view');
+  SECTIONS.forEach(s=>{
+    if(!document.getElementById(s.id+'-view')){
+      const d=document.createElement('div');
+      d.id=s.id+'-view'; d.className='section-view dyn-view';
+      main.insertBefore(d,savedV);
+    }
+  });
+}
+
+function switchTab(id){
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    t.classList.toggle('active',(t.getAttribute('onclick')||'').includes(`'${id}'`));
+  });
+  document.querySelectorAll('.section-view').forEach(v=>v.classList.remove('active'));
+  const el=document.getElementById(id+'-view');
+  if(el)el.classList.add('active');
+  if(id==='saved')renderSaved();
+  if(id==='topics')renderTopics();
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────────────
+function renderAll(){
+  const av=document.getElementById('all-view'); av.innerHTML='';
+  SECTIONS.forEach(s=>{
+    const b=document.createElement('div');
+    b.className='fade-in'; b.id='all-block-'+s.id;
+    b.innerHTML=secHTML(s); av.appendChild(b);
+  });
+  SECTIONS.forEach(s=>{
+    const v=document.getElementById(s.id+'-view');
+    if(v)v.innerHTML=`<div id="single-block-${s.id}">${secHTML(s)}</div>`;
+  });
+}
+
+// ── SECTION HTML ──────────────────────────────────────────────────────
+function secHTML(s){
+  const data=sectionData[s.id]||{articles:[],dismissed:new Set()};
+  const loading=loadingState[s.id];
+  const vis=data.articles.filter((_,i)=>!data.dismissed.has(i));
+  let cards='';
+  if(loading&&data.articles.length===0){
+    for(let i=0;i<5;i++) cards+=`<div class="article-card"><div class="skeleton sk-short"></div><div class="skeleton sk-h"></div><div class="skeleton sk-h" style="width:80%"></div><div class="skeleton sk-full"></div><div class="skeleton sk-full"></div><div class="skeleton sk-med"></div></div>`;
+  } else if(!loading&&data.articles.length===0){
+    cards=`<div class="empty-state">No articles yet — click Refresh.</div>`;
+  } else {
+    data.articles.forEach((a,i)=>{if(!data.dismissed.has(i))cards+=buildCard(a,i,s.id);});
+    if(vis.length===0) cards=`<div class="empty-state">All dismissed. <button class="feedback-btn" onclick="loadSection('${s.id}')">Fetch fresh →</button></div>`;
+  }
+  const playingThis=tts.speaking&&tts.sid===s.id;
+  return `
+    <div class="section-header">
+      <span class="section-badge ${s.badgeClass}">${s.icon} ${s.badge}</span>
+      <span class="section-title">${s.label}</span>
+      <span class="section-meta" id="ts-${s.id}">—</span>
+      <button class="refresh-btn" onclick="loadSection('${s.id}')">↻ Refresh</button>
+    </div>
+    <div class="play-bar">
+      <span class="play-bar-label">🔊 Audio Briefing — hear all articles read aloud</span>
+      <button class="play-btn${playingThis?' stop':''}" onclick="togglePlaySection('${s.id}')">
+        ${playingThis?'⏹ Stop':'▶ Play All'}
+      </button>
+      <span class="play-track" id="pt-${s.id}">${playingThis?`Article ${tts.idx+1} of ${vis.length}`:''}</span>
+    </div>
+    <div class="status-bar"><div class="status-dot"></div><span>LIVE FEED · AI-CURATED</span></div>
+    <div class="articles-grid">${cards}</div>
+    <div class="feedback-bar">
+      <span class="feedback-label">📬 Feedback</span>
+      <button class="feedback-btn" onclick="loadSection('${s.id}')">🔄 Refresh all 5</button>
+      <button class="feedback-btn" onclick="loadMore('${s.id}')">➕ Load 5 alternatives</button>
+      <span style="flex:1;font-size:11px;color:var(--muted)">Skip ✕ → auto-loads replacements</span>
+    </div>`;
+}
+
+// ── CARD ──────────────────────────────────────────────────────────────
+function buildCard(art,idx,sid){
+  const su=art.url?art.url.replace(/https?:\/\/(www\.)?/,'').slice(0,42)+'…':'#';
+  const ck=sid+'-'+idx;
+  const cached=execCache[ck];
+  const execContent=cached&&cached!=='loading'?cached:cached==='loading'?`<p class="exec-loading">⏳ Generating exec summary…</p>`:'';
+  const isSpeaking=tts.speaking&&tts.sid===sid&&tts.idx===idx;
+  return `<div class="article-card card-in" id="card-${sid}-${idx}">
+    <div class="card-top-row">
+      <span class="card-num">#${idx+1}</span>
+      <span class="card-source">${art.source||'Source'}</span>
+    </div>
+    <div class="card-headline">${art.headline||'Loading…'}</div>
+    <div class="card-summary">${art.summary||''}</div>
+    <div class="exec-section">
+      <button class="exec-toggle" onclick="toggleExec('${sid}',${idx})">
+        <span id="ea-${sid}-${idx}">▸</span>
+        <span>Exec Summary</span>
+        ${cached&&cached!=='loading'?'<span class="dot-ready">●</span>':''}
+      </button>
+      <div class="exec-body" id="eb-${sid}-${idx}">${execContent}</div>
+    </div>
+    <div class="card-footer">
+      <a class="card-link" href="${art.url||'#'}" target="_blank" rel="noopener">↗ ${su}</a>
+      <div class="card-actions">
+        <button class="btn-icon${isSpeaking?' speaking':''}" title="${isSpeaking?'Speaking…':'Listen'}" onclick="speakOne('${sid}',${idx})">🔊</button>
+        <button class="btn-icon save" title="Save" onclick="saveArt('${sid}',${idx})">🔖</button>
+        <button class="btn-icon skip" title="Skip" onclick="dismissCard('${sid}',${idx})">✕</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── EXEC SUMMARY ──────────────────────────────────────────────────────
+async function toggleExec(sid,idx){
+  const body=document.getElementById(`eb-${sid}-${idx}`);
+  const arrow=document.getElementById(`ea-${sid}-${idx}`);
+  const isOpen=body.classList.contains('open');
+  if(isOpen){body.classList.remove('open');arrow.textContent='▸';return;}
+  body.classList.add('open');arrow.textContent='▾';
+  const ck=sid+'-'+idx;
+  if(execCache[ck]&&execCache[ck]!=='loading'){body.innerHTML=execCache[ck];return;}
+  const art=sectionData[sid]?.articles[idx]; if(!art)return;
+  execCache[ck]='loading';
+  body.innerHTML=`<p class="exec-loading">⏳ Generating executive summary…</p>`;
+  try{
+    const prompt=`You are a C-suite briefing writer. Given this article: Headline: "${art.headline}". Summary: "${art.summary}". Source: ${art.source}. Write a sharp executive briefing with: one "What happened" sentence, exactly 3 bullet takeaways, one "Why it matters for a Singapore AI healthtech founder" sentence. Return ONLY valid JSON: {"what":"...","takeaways":["...","...","..."],"why":"..."}`;
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MDL,max_tokens:600,messages:[{role:'user',content:prompt}]})});
+    const d=await r.json();
+    const txt=d.content?.map(c=>c.text||'').join('')||'';
+    const m=txt.match(/\{[\s\S]*\}/); if(!m)throw new Error();
+    const p=JSON.parse(m[0]);
+    const html=`<span class="exec-label">What happened</span><p style="margin-bottom:10px">${p.what}</p><span class="exec-label">Key Takeaways</span>${(p.takeaways||[]).map(t=>`<div class="exec-bullet"><span>${t}</span></div>`).join('')}<span class="exec-label" style="margin-top:10px;display:block">Why it matters to you</span><p style="font-style:italic;color:var(--steel)">${p.why}</p>`;
+    execCache[ck]=html; body.innerHTML=html;
+    refreshViews(sid);
+  }catch(e){
+    execCache[ck]=null;
+    body.innerHTML=`<p style="color:var(--accent);font-size:12px">Could not generate — try again.</p>`;
+  }
+}
+
+// ── TTS ───────────────────────────────────────────────────────────────
+function artText(art){return `${art.headline}. ${art.summary}`;}
+
+function speakOne(sid,idx){
+  if(tts.speaking){window.speechSynthesis.cancel();tts.speaking=false;tts.sid=null;refreshViews(sid);return;}
+  const art=sectionData[sid]?.articles[idx]; if(!art)return;
+  const u=new SpeechSynthesisUtterance(artText(art));
+  u.rate=0.95;u.pitch=1;u.lang='en-GB';
+  tts={speaking:true,sid,idx,queue:[],utt:u};
+  u.onend=u.onerror=()=>{tts.speaking=false;tts.sid=null;refreshViews(sid);};
+  window.speechSynthesis.speak(u);
+  refreshViews(sid);
+}
+
+function togglePlaySection(sid){
+  if(tts.speaking){window.speechSynthesis.cancel();tts.speaking=false;tts.sid=null;refreshViews(sid);return;}
+  const data=sectionData[sid]; if(!data)return;
+  const vis=data.articles.filter((_,i)=>!data.dismissed.has(i));
+  if(!vis.length){showToast('No articles to play.');return;}
+  playQueue(sid,vis,0);
+}
+
+function playQueue(sid,arts,idx){
+  if(idx>=arts.length){tts.speaking=false;tts.sid=null;refreshViews(sid);showToast('Briefing complete ✓');return;}
+  const intro=idx===0?`Audio briefing: ${SECTIONS.find(s=>s.id===sid)?.label||sid}. `:'';
+  const text=intro+`Article ${idx+1} of ${arts.length}. `+artText(arts[idx]);
+  const u=new SpeechSynthesisUtterance(text);
+  u.rate=0.95;u.pitch=1;u.lang='en-GB';
+  tts={speaking:true,sid,idx,queue:arts,utt:u};
+  u.onend=()=>playQueue(sid,arts,idx+1);
+  u.onerror=()=>{tts.speaking=false;tts.sid=null;refreshViews(sid);};
+  window.speechSynthesis.speak(u);
+  refreshViews(sid);
+  setTrack(sid,idx,arts.length);
+}
+
+function setTrack(sid,idx,total){
+  ['all-block-','single-block-'].forEach(p=>{
+    const b=document.getElementById(p+sid);
+    if(b){const t=b.querySelector('#pt-'+sid);if(t)t.textContent=`Article ${idx+1} of ${total}`;}
+  });
+}
+
+// ── API LOADERS ───────────────────────────────────────────────────────
+async function loadAllSections(){for(const s of SECTIONS)await loadSection(s.id);}
+
+async function loadSection(sid){
+  const s=SECTIONS.find(x=>x.id===sid); if(!s)return;
+  loadingState[sid]=true;
+  sectionData[sid]={articles:[],dismissed:new Set()};
+  execCache=Object.fromEntries(Object.entries(execCache).filter(([k])=>!k.startsWith(sid+'-')));
+  refreshViews(sid);
+  try{
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MDL,max_tokens:1400,messages:[{role:'user',content:s.prompt}]})});
+    const d=await r.json();
+    const txt=d.content?.map(c=>c.text||'').join('')||'';
+    const m=txt.match(/\{[\s\S]*\}/); if(!m)throw new Error();
+    sectionData[sid].articles=JSON.parse(m[0]).articles||[];
+  }catch(e){
+    sectionData[sid].articles=[{headline:"Could not load articles",summary:"Refresh to try again.",source:"System",url:"#"}];
+  }
+  loadingState[sid]=false;
+  refreshViews(sid);
+  setTimestamp(sid);
+}
+
+async function loadMore(sid){
+  const s=SECTIONS.find(x=>x.id===sid); if(!s)return;
+  showToast('Fetching 5 alternatives…');
+  const p=s.prompt.replace('List 5','List 5 DIFFERENT ALTERNATIVE').replace('Return ONLY','Do NOT repeat previous stories. Return ONLY');
+  try{
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MDL,max_tokens:1400,messages:[{role:'user',content:p}]})});
+    const d=await r.json();
+    const txt=d.content?.map(c=>c.text||'').join('')||'';
+    const m=txt.match(/\{[\s\S]*\}/); if(!m)throw new Error();
+    const ex=sectionData[sid].articles.length;
+    sectionData[sid].articles.push(...(JSON.parse(m[0]).articles||[]));
+    for(let i=0;i<ex;i++)sectionData[sid].dismissed.add(i);
+    showToast('5 alternatives loaded ✓');
+  }catch(e){showToast('Could not load alternatives.');}
+  refreshViews(sid);
+}
+
+function setTimestamp(sid){
+  ['all-block-','single-block-'].forEach(p=>{
+    const b=document.getElementById(p+sid);
+    if(b){const t=b.querySelector('#ts-'+sid);if(t)t.textContent='Updated '+new Date().toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit'});}
+  });
+}
+
+// ── CARD ACTIONS ──────────────────────────────────────────────────────
+function dismissCard(sid,idx){
+  sectionData[sid].dismissed.add(idx);
+  refreshViews(sid);
+  const rem=sectionData[sid].articles.filter((_,i)=>!sectionData[sid].dismissed.has(i)).length;
+  if(rem<2){showToast('Running low — fetching more…');loadMore(sid);}
+}
+
+function saveArt(sid,idx){
+  const art=sectionData[sid]?.articles[idx]; if(!art)return;
+  const ei=savedArticles.findIndex(a=>a.url===art.url);
+  if(ei>=0){savedArticles.splice(ei,1);showToast('Removed from saved.');}
+  else{savedArticles.push({...art,savedAt:new Date().toLocaleTimeString()});showToast('Saved 🔖');}
+  document.getElementById('saved-count').textContent=savedArticles.length;
+  refreshViews(sid);
+}
+
+// ── REFRESH HELPERS ───────────────────────────────────────────────────
+function refreshViews(sid){
+  const s=SECTIONS.find(x=>x.id===sid); if(!s)return;
+  const html=secHTML(s);
+  ['all-block-','single-block-'].forEach(p=>{
+    const el=document.getElementById(p+sid);
+    if(el)el.innerHTML=html;
+  });
+}
+
+// ── SAVED ─────────────────────────────────────────────────────────────
+function renderSaved(){
+  const v=document.getElementById('saved-view');
+  if(!savedArticles.length){v.innerHTML=`<div class="section-header"><span class="section-badge gold">🔖 Saved</span><span class="section-title">Reading List</span></div><div class="empty-state" style="padding:60px">No saved articles yet.<br><small>Click 🔖 on any article to save it.</small></div>`;return;}
+  v.innerHTML=`<div class="section-header"><span class="section-badge gold">🔖 Saved</span><span class="section-title">Your Reading List</span><span class="section-meta">${savedArticles.length} articles</span></div>
+  <div class="articles-grid">${savedArticles.map((a,i)=>buildCard(a,i,'__saved__')).join('')}</div>
+  <div class="feedback-bar"><button class="feedback-btn" onclick="savedArticles=[];document.getElementById('saved-count').textContent=0;renderSaved()">🗑 Clear all</button></div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// WATCH TOPICS EDITOR
+// ══════════════════════════════════════════════════════════════════════
+function renderTopics(){
+  const v=document.getElementById('topics-view');
+  v.innerHTML='';
+  const page=document.createElement('div');
+  page.className='topics-page fade-in';
+  page.innerHTML=`
+    <div class="topics-intro">
+      <h2>⚙️ Watch Topics</h2>
+      <p>Customise your 6 intelligence feeds. Edit the icon, label, colour and AI prompt for any topic, add new ones, or remove topics you don't need. Changes apply when you save.</p>
+    </div>
+    <div id="topics-list"></div>
+    <button class="add-topic" onclick="addTopic()">＋ Add New Watch Topic</button>
+    <div class="global-actions">
+      <button class="btn-p" onclick="saveAllTopics()">💾 Save All & Reload Feeds</button>
+      <button class="btn-s" onclick="resetDefaults()">↩ Reset to Defaults</button>
+    </div>`;
+  v.appendChild(page);
+  renderTopicList();
+}
+
+function renderTopicList(){
+  const list=document.getElementById('topics-list'); if(!list)return;
+  list.innerHTML='';
+  SECTIONS.forEach(s=>{
+    const c=document.createElement('div');
+    c.className='topic-editor-card fade-in'; c.id='te-'+s.id;
+    c.innerHTML=`
+      <div class="te-header">
+        <input class="te-icon" type="text" value="${s.icon}" maxlength="4" id="tei-${s.id}" title="Emoji icon">
+        <input class="te-name" type="text" value="${s.label}" id="ten-${s.id}" placeholder="Topic name">
+        <select class="te-color" id="tec-${s.id}">
+          ${['','accent','gold','steel','green','purple'].map(bc=>`<option value="${bc}" ${s.badgeClass===bc?'selected':''}>${bc||'default'}</option>`).join('')}
+        </select>
+        <span class="te-active">● Active</span>
+        <span class="te-id">id: ${s.id}</span>
+      </div>
+      <div class="te-prompt-label">AI Prompt — defines what articles Claude fetches for this topic</div>
+      <textarea class="te-prompt" id="tep-${s.id}">${s.prompt}</textarea>
+      <div class="te-actions">
+        <button class="btn-p" onclick="saveTopic('${s.id}')">Save & Reload</button>
+        <button class="btn-s" onclick="previewTopic('${s.id}')">👁 Preview</button>
+        ${SECTIONS.length>1?`<button class="btn-d" onclick="confirmDelete('${s.id}')">✕ Remove</button>`:''}
+      </div>`;
+    list.appendChild(c);
+  });
+}
+
+function saveTopic(sid){
+  const s=SECTIONS.find(x=>x.id===sid); if(!s)return;
+  s.icon=document.getElementById('tei-'+sid)?.value.trim()||s.icon;
+  s.label=document.getElementById('ten-'+sid)?.value.trim()||s.label;
+  s.badge=s.label.split('·').pop().trim().slice(0,18);
+  s.badgeClass=document.getElementById('tec-'+sid)?.value||'';
+  s.prompt=document.getElementById('tep-'+sid)?.value.trim()||s.prompt;
+  rebuildNav(); loadSection(sid);
+  showToast(`"${s.label}" saved — reloading…`);
+}
+
+function saveAllTopics(){
+  SECTIONS.forEach(s=>{
+    const icon=document.getElementById('tei-'+s.id);
+    const name=document.getElementById('ten-'+s.id);
+    const color=document.getElementById('tec-'+s.id);
+    const prompt=document.getElementById('tep-'+s.id);
+    if(icon)s.icon=icon.value.trim()||s.icon;
+    if(name){s.label=name.value.trim()||s.label;s.badge=s.label.split('·').pop().trim().slice(0,18);}
+    if(color)s.badgeClass=color.value;
+    if(prompt)s.prompt=prompt.value.trim()||s.prompt;
+  });
+  rebuildNav(); rebuildSectionDivs(); renderAll();
+  showToast('All topics saved — reloading all feeds…');
+  loadAllSections();
+}
+
+function addTopic(){
+  const id='custom_'+Date.now();
+  SECTIONS.push({id,label:'New Watch Topic',badge:'Custom',badgeClass:'steel',icon:'📌',
+    prompt:`You are a news editor. List 5 important recent news articles on [YOUR TOPIC HERE]. For each: a clear headline, 2-sentence summary of what happened and why it matters, credible source name, real working URL. Return ONLY valid JSON: {"articles":[{"headline":"...","summary":"...","source":"...","url":"..."}]}`});
+  sectionData[id]={articles:[],dismissed:new Set()}; loadingState[id]=false;
+  rebuildNav(); rebuildSectionDivs(); renderAll(); renderTopicList();
+  showToast('New topic added — edit the prompt and save.');
+  setTimeout(()=>document.getElementById('te-'+id)?.scrollIntoView({behavior:'smooth',block:'center'}),120);
+}
+
+function confirmDelete(sid){
+  const s=SECTIONS.find(x=>x.id===sid);
+  openModal(`Remove "${s?.label}"?`,`This will permanently remove this watch topic from your briefing.`,()=>{
+    SECTIONS=SECTIONS.filter(x=>x.id!==sid);
+    delete sectionData[sid]; rebuildNav(); rebuildSectionDivs(); renderAll(); renderTopicList();
+    showToast('Topic removed.');
+  });
+}
+
+async function previewTopic(sid){
+  const prompt=document.getElementById('tep-'+sid)?.value; if(!prompt)return;
+  showToast('Fetching preview…');
+  try{
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MDL,max_tokens:800,messages:[{role:'user',content:prompt}]})});
+    const d=await r.json();
+    const txt=d.content?.map(c=>c.text||'').join('')||'';
+    const m=txt.match(/\{[\s\S]*\}/); if(!m)throw new Error();
+    const art=JSON.parse(m[0]).articles?.[0];
+    if(art)openModal('Preview Result',`<strong>${art.headline}</strong><br><br>${art.summary}<br><br><em>Source: ${art.source}</em>`,null,true);
+    else showToast('No articles returned — adjust your prompt.');
+  }catch(e){showToast('Preview failed — check prompt format.');}
+}
+
+function resetDefaults(){
+  openModal('Reset to Defaults?','Restore the original 6 watch topics and discard all customisations.',()=>location.reload());
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────
+function openModal(title,body,onOk,infoOnly=false){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-body').innerHTML=body;
+  const btn=document.getElementById('modal-ok');
+  if(infoOnly){btn.style.display='none';}
+  else{btn.style.display='';btn.onclick=()=>{onOk&&onOk();closeModal();};}
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('modal-ok').style.display='';
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+window.addEventListener('beforeunload',()=>{if(tts.speaking)window.speechSynthesis.cancel();});
+init();
+</script>
+</body>
+</html>
